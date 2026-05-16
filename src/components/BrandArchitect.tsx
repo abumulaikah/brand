@@ -156,11 +156,11 @@ export default function BrandArchitect() {
   const progressPercentage = Math.round((completedQuestions / totalQuestions) * 100);
 
   return (
-    <div className="h-screen w-full bg-[#FBFBFB] text-[#1A1A1A] font-sans flex overflow-hidden border border-gray-200 selection:bg-orange-100 selection:text-orange-900">
+    <div className="h-screen w-full bg-[#FAFAF9] text-[#1A1A1A] font-sans flex overflow-hidden border border-[#E5E5E5] selection:bg-[#E5E5E5] selection:text-[#1A1A1A]">
       {/* LEFT NAVIGATION RAIL */}
-      <aside className="w-[80px] h-full border-r border-[#1A1A1A] flex flex-col items-center py-10 justify-between shrink-0">
+      <aside className="w-[80px] h-full border-r border-[#E5E5E5] flex flex-col items-center py-10 justify-between shrink-0">
         <div className="text-[10px] font-bold tracking-[0.2em] uppercase vertical-text transform rotate-180 flex items-center gap-2" style={{ writingMode: 'vertical-rl' }}>
-          Phase: {brandFoundation ? 'Output' : 'Inquiry'} <div className="w-1 h-3 bg-orange-600" />
+          Brand by Fitra <div className="w-1 h-3 bg-[#333333]" />
         </div>
         <div className="flex flex-col gap-6">
           {SECTIONS.map((_, i) => (
@@ -168,7 +168,7 @@ export default function BrandArchitect() {
               key={i}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-300",
-                i === currentSectionIndex ? "bg-orange-600 scale-125" : i < currentSectionIndex ? "bg-[#1A1A1A]" : "bg-gray-300"
+                i === currentSectionIndex ? "bg-[#333333] scale-125" : i < currentSectionIndex ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"
               )}
             />
           ))}
@@ -181,13 +181,13 @@ export default function BrandArchitect() {
       {/* MAIN WORKSPACE */}
       <main className="flex-1 h-full flex flex-col relative overflow-hidden">
         {/* TOP HEADER */}
-        <header className="h-[80px] w-full border-b border-[#1A1A1A] flex items-center justify-between px-12 shrink-0">
-          <div className="text-[11px] font-bold tracking-[0.3em] uppercase">Brand Strategist AI v1.0</div>
+        <header className="h-[80px] w-full border-b border-[#E5E5E5] flex items-center justify-between px-12 shrink-0">
+          <div className="text-[11px] font-semibold tracking-[0.3em] uppercase">Brand by Fitra</div>
           <div className="flex gap-8 items-center">
             <span className="hidden md:block text-[11px] uppercase tracking-widest opacity-40">Project: {answers.brandName || "Untitled_Vision"}</span>
             <span className="text-[11px] uppercase tracking-widest font-bold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              Director: Active
+              <span className="w-2 h-2 rounded-full bg-[#333333] animate-pulse" />
+              brandbyfitra.vercel.app
             </span>
           </div>
         </header>
@@ -204,8 +204,8 @@ export default function BrandArchitect() {
                 className="min-h-full flex flex-col justify-center px-12 lg:px-24 py-12"
               >
                 <div className="mb-4 flex items-center gap-4">
-                  <span className="text-[14px] font-serif italic text-orange-600">Section {String(currentSectionIndex + 1).padStart(2, '0')}</span>
-                  <div className="h-[1px] w-12 bg-orange-600"></div>
+                  <span className="text-[14px] font-serif italic text-[#666666]">Section {String(currentSectionIndex + 1).padStart(2, '0')}</span>
+                  <div className="h-[1px] w-12 bg-[#CFCFCF]"></div>
                   <span className="text-[11px] font-bold uppercase tracking-widest">{currentSection.title}</span>
                 </div>
 
@@ -243,7 +243,7 @@ export default function BrandArchitect() {
                     <button
                       onClick={handleNext}
                       disabled={isGenerating}
-                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-orange-600 transition-colors flex items-center gap-2 group"
+                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center gap-2 group"
                     >
                       {isGenerating ? "Processing..." : (isLastQuestionInSection && isLastSection ? "Generate Foundation" : "Submit Response")}
                       {!isGenerating && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
@@ -263,7 +263,7 @@ export default function BrandArchitect() {
                     <p className="text-[10px] uppercase font-bold tracking-widest mb-2 opacity-50">Current Context</p>
                     <p className="text-[13px] leading-relaxed max-w-xs text-gray-600">
                       We are currently defining the <span className="font-bold text-[#1A1A1A]">{currentSection.title}</span>. 
-                      Your answers here will shape the strategic direction of the brand mark and narrative.
+                      Your answers here will shape a focused brand narrative with the same quiet clarity as Al Fitra Noor's digital home.
                     </p>
                   </div>
                   <div>
@@ -283,13 +283,13 @@ export default function BrandArchitect() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-gray-200 pb-8">
                   <div>
-                    <h2 className="text-4xl font-serif italic text-orange-600">Brand Manifesto</h2>
+                    <h2 className="text-4xl font-serif italic text-[#1A1A1A]">Brand Foundation</h2>
                     <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-2">Strategic Foundation Document</p>
                   </div>
                   <div className="flex gap-4">
                     <button
                       onClick={downloadPDF}
-                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-orange-600 transition-colors flex items-center gap-2"
+                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center gap-2"
                     >
                       <Download className="w-4 h-4" />
                       Export to PDF
@@ -314,7 +314,7 @@ export default function BrandArchitect() {
                   
                   <div className="relative z-10 max-w-3xl mx-auto">
                     <header className="mb-20 border-b-4 border-[#1A1A1A] pb-8">
-                      <p className="text-[12px] uppercase tracking-[0.4em] font-bold text-orange-600 mb-4">Official Brand Report</p>
+                      <p className="text-[12px] uppercase tracking-[0.4em] font-bold text-[#666666] mb-4">Brand by Fitra Report</p>
                       <h3 className="text-6xl font-serif tracking-tighter leading-none">{answers.brandName}</h3>
                       <div className="mt-8 flex justify-between text-[10px] font-mono uppercase tracking-widest text-gray-400">
                         <span>Agency Grade Strategic Output</span>
@@ -328,10 +328,10 @@ export default function BrandArchitect() {
 
                     <footer className="mt-32 pt-12 border-t border-gray-100 flex justify-between items-end">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-gray-300">
-                        Brand Architect AI<br/>
+                        Brand by Fitra<br/>
                         Strategic Identity System
                       </div>
-                      <div className="w-12 h-1 bg-orange-600" />
+                      <div className="w-12 h-1 bg-[#333333]" />
                     </footer>
                   </div>
                 </div>
@@ -341,9 +341,9 @@ export default function BrandArchitect() {
         </div>
 
         {/* STATUS BAR */}
-        <footer className="h-[60px] border-t border-[#1A1A1A] flex items-center px-12 justify-between bg-white shrink-0">
+        <footer className="h-[60px] border-t border-[#E5E5E5] flex items-center px-12 justify-between bg-white shrink-0">
           <div className="flex gap-4 items-center">
-            <div className={cn("w-3 h-3 rounded-full animate-pulse", isGenerating ? "bg-orange-500" : "bg-green-500")}></div>
+            <div className={cn("w-3 h-3 rounded-full animate-pulse", isGenerating ? "bg-[#666666]" : "bg-[#333333]")}></div>
             <span className="text-[10px] uppercase tracking-widest font-bold">
               {isGenerating ? "Strategist is thinking..." : "Strategist is listening..."}
             </span>
@@ -355,40 +355,40 @@ export default function BrandArchitect() {
       </main>
 
       {/* RIGHT ANALYSIS PANEL */}
-      <aside className="hidden lg:flex w-[320px] h-full bg-[#1A1A1A] text-[#FBFBFB] p-10 flex-col shrink-0 overflow-y-auto">
+      <aside className="hidden lg:flex w-[320px] h-full bg-[#1A1A1A] text-[#FAFAF9] p-10 flex-col shrink-0 overflow-y-auto">
         <div className="mb-12">
           <div className="text-[10px] uppercase tracking-[0.2em] mb-8 border-b border-gray-700 pb-2 flex justify-between items-center">
             <span>Live Analysis</span>
-            <span className="text-orange-500 font-bold">READY</span>
+            <span className="text-[#D4D4D4] font-bold">READY</span>
           </div>
           
           <div className="space-y-12">
             <div>
               <h3 className="text-[11px] uppercase font-bold mb-3 tracking-widest flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 0 ? "bg-orange-600" : "bg-gray-700")} />
+                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 0 ? "bg-[#D4D4D4]" : "bg-gray-700")} />
                 01. Core Value
               </h3>
               <div className="h-[1px] w-full bg-gray-800 mb-4"></div>
-              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.problem ? "text-gray-300 opacity-100" : "italic opacity-30")}>
-                {answers.problem ? `${answers.problem.substring(0, 80)}...` : "Awaiting Business Core data"}
+              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.productProblem ? "text-gray-300 opacity-100" : "italic opacity-30")}>
+                {answers.productProblem ? `${answers.productProblem.substring(0, 80)}...` : "Awaiting Business Core data"}
               </p>
             </div>
 
             <div>
               <h3 className="text-[11px] uppercase font-bold mb-3 tracking-widest flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 1 ? "bg-orange-600" : "bg-gray-700")} />
+                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 1 ? "bg-[#D4D4D4]" : "bg-gray-700")} />
                 02. Target Persona
               </h3>
               <div className="h-[1px] w-full bg-gray-800 mb-4"></div>
-              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.targetMain ? "text-gray-300 opacity-100" : "italic opacity-30")}>
-                {answers.targetMain ? `${answers.targetMain.substring(0, 80)}...` : "Waiting for audience definition"}
+              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.targetPain ? "text-gray-300 opacity-100" : "italic opacity-30")}>
+                {answers.targetPain ? `${answers.targetPain.substring(0, 80)}...` : "Waiting for audience definition"}
               </p>
             </div>
 
             <div className="bg-[#1E1E1E] p-6 border border-gray-800 rounded-sm">
               <div className="flex items-center gap-2 mb-4">
-                <MessageSquare className="w-3 h-3 text-orange-500" />
-                <h3 className="text-[11px] uppercase font-bold tracking-widest text-orange-500">Director's Insight</h3>
+                <MessageSquare className="w-3 h-3 text-[#D4D4D4]" />
+                <h3 className="text-[11px] uppercase font-bold tracking-widest text-[#D4D4D4]">Fitra's Note</h3>
               </div>
               <p className="text-[14px] font-serif italic leading-relaxed text-gray-300">
                 {currentSectionIndex === 0 && "\"First impressions are binary. A brand either invites curiosity or breeds indifference.\""}
@@ -406,7 +406,7 @@ export default function BrandArchitect() {
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercentage}%` }}
-                  className="h-full bg-orange-600"
+                  className="h-full bg-[#D4D4D4]"
                 />
               </div>
             </div>
@@ -417,7 +417,7 @@ export default function BrandArchitect() {
           <div className="text-[9px] uppercase tracking-widest leading-loose opacity-40">
             Data Privacy Secured<br/>
             Standard: Agency Professional<br/>
-            Â© 2026 Brand Strategist Creative
+            © 2026 Al Fitra Noor
           </div>
         </div>
       </aside>
@@ -458,7 +458,7 @@ export default function BrandArchitect() {
           content: "";
           width: 8px;
           height: 8px;
-          background-color: #EA580C; /* orange-600 */
+          background-color: #333333;
           border-radius: 9999px;
           margin-top: 0.5rem;
           flex-shrink: 0;
