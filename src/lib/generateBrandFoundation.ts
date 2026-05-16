@@ -32,11 +32,23 @@ Untuk customer yang ${targetPain}, ${brandName} hadir sebagai pilihan yang memba
 - Karakter utama: ${personaTraits}
 - Tone komunikasi: ${toneVoice}
 
-### 5. Starter Point untuk Visual Identity
-- Visual identity sebaiknya mengikuti daya beli customer, bukan sekadar selera visual.
-- Jika customer membeli karena aspirasi atau lifestyle, desain perlu terasa lebih editorial, premium, dan punya detail khas.
-- Jika customer membeli karena kebutuhan praktis, desain perlu lebih jelas, mudah dipahami, dan langsung menunjukkan manfaat.
-- Diferensiasi visual utama sebaiknya berangkat dari: ${difference}.`;
+### 5. Insight Tambahan
+- Status ekonomi / daya beli customer: ${economicStatus}
+- Motivasi beli utama: ${buyingMotivation}
+- Potensi positioning: ${brandName} dapat menonjol melalui ${difference}.
+- Risiko branding: pesan brand bisa terasa terlalu umum jika tidak terus dikaitkan dengan masalah utama, yaitu ${productProblem}.
+- Saran diferensiasi: fokuskan narasi pada pembeda utama dibanding ${competitors}.`;
+}
+
+function sanitizeBrandFoundationOutput(output: string) {
+  const withoutSectionSix = output.split(/\n#{2,3}\s*6\./i)[0];
+  const visualTerms = /\b(visual|logo|warna|tipografi|layout|fotografi|photography|color|typography)\b/i;
+
+  return withoutSectionSix
+    .split("\n")
+    .filter((line) => !visualTerms.test(line))
+    .join("\n")
+    .trim();
 }
 
 export async function generateBrandFoundation(answers: Record<string, string>) {
@@ -54,7 +66,7 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
   });
 
   const prompt = `
-    You are a Brand Strategist & Creative Director.
+    You are a Brand Strategist.
     Based on the followings answers for a brand questionnaire, generate a structured brand foundation.
 
     Questionnaire Answers:
@@ -76,7 +88,7 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
     ### 3. Brand Personality
     - 3 karakter utama
     - Tone komunikasi
-    - Do & Don't
+    - Do & Don't for messaging and behavior only
 
     ### 4. Brand Voice
     - Gaya komunikasi
@@ -91,11 +103,8 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
     - Risiko branding
     - Saran diferensiasi
 
-    ### 6. Starter Point untuk Visual Identity
-    - Direction visual berdasarkan positioning, status ekonomi, motivasi beli, dan personality
-    - Hindari meminta ulang gaya visual dari user; simpulkan sendiri dari strategi
-
     Use Indonesian language as requested.
+    Stop at section 5. Never add section 6. Do not mention visual identity, logo, color, typography, layout, photography, or starter visual recommendations.
   `;
 
   try {
@@ -104,7 +113,7 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
       contents: prompt,
     });
 
-    return response.text;
+    return sanitizeBrandFoundationOutput(response.text ?? "");
   } catch (error) {
     console.error("Falling back to starter foundation:", error);
     return generateStarterFoundation(answers);

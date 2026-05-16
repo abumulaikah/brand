@@ -157,13 +157,41 @@ export default function Brand() {
   const downloadPDF = async () => {
     if (!resultRef.current) return;
     const element = resultRef.current;
-    const canvas = await html2canvas(element, { scale: 2 });
+    element.classList.add("pdf-exporting");
+    let canvas: HTMLCanvasElement;
+
+    try {
+      canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        windowWidth: 1200,
+        ignoreElements: (node) => node.tagName.toLowerCase() === "svg",
+      });
+    } finally {
+      element.classList.remove("pdf-exporting");
+    }
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
     const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+    let remainingHeight = pdfHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+    remainingHeight -= pageHeight;
+
+    while (remainingHeight > 0) {
+      position -= pageHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+      remainingHeight -= pageHeight;
+    }
+
     pdf.save(`Brand_Foundation_${answers.brandName || 'Brand'}.pdf`);
   };
 
@@ -189,22 +217,22 @@ export default function Brand() {
   return (
     <div className="h-screen w-full bg-[#FAFAF9] text-[#1A1A1A] font-sans flex overflow-hidden border border-[#E5E5E5] selection:bg-[#E5E5E5] selection:text-[#1A1A1A]">
       {/* LEFT NAVIGATION RAIL */}
-      <aside className="w-[80px] h-full border-r border-[#E5E5E5] flex flex-col items-center py-10 justify-between shrink-0">
-        <div className="text-[10px] font-bold tracking-[0.2em] uppercase vertical-text transform rotate-180 flex items-center gap-2" style={{ writingMode: 'vertical-rl' }}>
+      <aside className="w-[36px] sm:w-[48px] h-full border-r border-[#E5E5E5] flex flex-col items-center py-5 sm:py-8 justify-between shrink-0">
+        <div className="text-[7px] sm:text-[8px] font-bold tracking-[0.13em] sm:tracking-[0.16em] uppercase vertical-text transform rotate-180 flex items-center gap-2" style={{ writingMode: 'vertical-rl' }}>
           Brand by Fitra <div className="w-1 h-3 bg-[#FF7A00]" />
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {SECTIONS.map((_, i) => (
             <div
               key={i}
               className={cn(
-                "w-2 h-2 rounded-full transition-all duration-300",
+                "w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300",
                 i === currentSectionIndex ? "bg-[#FF7A00] scale-125" : i < currentSectionIndex ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"
               )}
             />
           ))}
         </div>
-        <div className="text-[14px] font-serif italic">
+        <div className="text-[11px] sm:text-[13px] font-serif italic">
           {String(currentSectionIndex + 1).padStart(2, '0')}/{String(SECTIONS.length).padStart(2, '0')}
         </div>
       </aside>
@@ -212,11 +240,10 @@ export default function Brand() {
       {/* MAIN WORKSPACE */}
       <main className="flex-1 h-full flex flex-col relative overflow-hidden">
         {/* TOP HEADER */}
-        <header className="h-[80px] w-full border-b border-[#E5E5E5] flex items-center justify-between px-12 shrink-0">
-          <div className="text-[11px] font-semibold tracking-[0.3em] uppercase">Brand by Fitra</div>
-          <div className="flex gap-8 items-center">
-            <span className="hidden md:block text-[11px] uppercase tracking-widest opacity-40">Project: {answers.brandName || "Untitled_Vision"}</span>
-            <span className="text-[11px] uppercase tracking-widest font-bold flex items-center gap-2">
+        <header className="h-[72px] sm:h-[80px] w-full border-b border-[#E5E5E5] flex items-center justify-end px-4 sm:px-8 lg:px-12 shrink-0">
+          <div className="flex gap-4 sm:gap-8 items-center min-w-0">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-widest opacity-40 truncate">Project: {answers.brandName || "Untitled_Vision"}</span>
+            <span className="hidden sm:flex text-[11px] uppercase tracking-widest font-bold items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#FF7A00] animate-pulse" />
               brand.alfitranoor.com
             </span>
@@ -232,7 +259,7 @@ export default function Brand() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="min-h-full flex flex-col justify-center px-12 lg:px-24 py-12"
+                className="min-h-full flex flex-col justify-center px-5 sm:px-8 lg:px-24 py-8 sm:py-12"
               >
                 <div className="mb-4 flex items-center gap-4">
                   <span className="text-[14px] font-serif italic text-[#666666]">Section {String(currentSectionIndex + 1).padStart(2, '0')}</span>
@@ -241,7 +268,7 @@ export default function Brand() {
                 </div>
 
                 <div className="mb-12">
-                  <h1 className="text-[40px] md:text-[72px] font-serif leading-[1.05] tracking-tight text-[#1A1A1A]">
+                  <h1 className="text-[34px] md:text-[72px] font-serif leading-[1.05] tracking-tight text-[#1A1A1A]">
                     {currentQuestion.label.split('brand').map((part, i) => (
                       <span key={i}>
                         {part}
@@ -258,7 +285,7 @@ export default function Brand() {
                       onChange={(e) => handleInputChange(e.target.value)}
                       placeholder={currentQuestion.placeholder}
                       rows={2}
-                      className="w-full bg-transparent border-b-2 border-[#1A1A1A] py-4 text-[24px] focus:outline-none placeholder:opacity-20 font-light resize-none transition-all placeholder:text-gray-400"
+                      className="w-full bg-transparent border-b-2 border-[#1A1A1A] py-4 text-[19px] sm:text-[24px] focus:outline-none placeholder:opacity-20 font-light resize-none transition-all placeholder:text-gray-400"
                     />
                   ) : (
                     <input
@@ -267,14 +294,14 @@ export default function Brand() {
                       onChange={(e) => handleInputChange(e.target.value)}
                       placeholder={currentQuestion.placeholder}
                       onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-                      className="w-full bg-transparent border-b-2 border-[#1A1A1A] py-4 text-[24px] focus:outline-none placeholder:opacity-20 font-light transition-all placeholder:text-gray-400"
+                      className="w-full bg-transparent border-b-2 border-[#1A1A1A] py-4 text-[19px] sm:text-[24px] focus:outline-none placeholder:opacity-20 font-light transition-all placeholder:text-gray-400"
                     />
                   )}
                   <div className="mt-8 flex items-center gap-4 flex-wrap">
                     <button
                       onClick={handleNext}
                       disabled={isGenerating}
-                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#FF7A00] transition-colors flex items-center gap-2 group"
+                      className="w-full sm:w-auto justify-center px-6 sm:px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#FF7A00] transition-colors flex items-center gap-2 group"
                     >
                       {isGenerating ? "Processing..." : (isLastQuestionInSection && isLastSection ? "Generate Foundation" : "Submit Response")}
                       {!isGenerating && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
@@ -282,7 +309,7 @@ export default function Brand() {
                     <button
                       onClick={handlePrevious}
                       disabled={currentSectionIndex === 0 && currentQuestionIndex === 0}
-                      className="px-8 py-3 border border-gray-200 text-[#1A1A1A] text-[11px] uppercase tracking-widest hover:border-[#1A1A1A] transition-colors disabled:opacity-0"
+                      className="w-full sm:w-auto px-6 sm:px-8 py-3 border border-gray-200 text-[#1A1A1A] text-[11px] uppercase tracking-widest hover:border-[#1A1A1A] transition-colors disabled:opacity-0"
                     >
                       Previous
                     </button>
@@ -309,24 +336,24 @@ export default function Brand() {
                 key="result"
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="p-12 lg:p-24"
+                className="p-4 sm:p-8 lg:p-20"
               >
-                <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-gray-200 pb-8">
-                  <div>
-                    <h2 className="text-4xl font-serif italic text-[#1A1A1A]">Brand Foundation</h2>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 sm:mb-12 border-b border-gray-200 pb-6 sm:pb-8">
+                  <div className="min-w-0">
+                    <h2 className="text-3xl sm:text-4xl font-serif italic text-[#1A1A1A]">Brand Foundation</h2>
                     <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-2">Strategic Foundation Document</p>
                   </div>
-                  <div className="flex gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full lg:w-auto">
                     <button
                       onClick={downloadPDF}
-                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center gap-2"
+                      className="justify-center px-5 sm:px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center gap-2"
                     >
                       <Download className="w-4 h-4" />
                       Export to PDF
                     </button>
                     <button
                       onClick={resetForm}
-                      className="px-8 py-3 border border-[#1A1A1A] text-[#1A1A1A] text-[11px] uppercase tracking-widest hover:bg-[#1A1A1A] hover:text-white transition-all flex items-center gap-2"
+                      className="justify-center px-5 sm:px-8 py-3 border border-[#1A1A1A] text-[#1A1A1A] text-[11px] uppercase tracking-widest hover:bg-[#1A1A1A] hover:text-white transition-all flex items-center gap-2"
                     >
                       <RefreshCw className="w-4 h-4" />
                       Reset Process
@@ -336,17 +363,17 @@ export default function Brand() {
 
                 <div 
                   ref={resultRef}
-                  className="bg-white border border-[#EEE] p-8 lg:p-20 shadow-2xl relative overflow-hidden"
+                  className="bg-white border border-[#EEE] p-5 sm:p-8 lg:p-16 xl:p-20 shadow-xl sm:shadow-2xl relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 p-10 opacity-5">
-                    <Building2 className="w-64 h-64 text-gray-900" />
+                  <div className="absolute top-0 right-0 p-6 sm:p-10 opacity-5">
+                    <Building2 className="w-36 h-36 sm:w-64 sm:h-64 text-gray-900" />
                   </div>
                   
                   <div className="relative z-10 max-w-3xl mx-auto">
-                    <header className="mb-20 border-b-4 border-[#FF7A00] pb-8">
-                      <p className="text-[12px] uppercase tracking-[0.4em] font-bold text-[#666666] mb-4">Brand by Fitra Report</p>
-                      <h3 className="text-6xl font-serif tracking-tighter leading-none">{answers.brandName}</h3>
-                      <div className="mt-8 flex justify-between text-[10px] font-mono uppercase tracking-widest text-gray-400">
+                    <header className="mb-10 sm:mb-16 lg:mb-20 border-b-4 border-[#FF7A00] pb-6 sm:pb-8">
+                      <p className="text-[10px] sm:text-[12px] uppercase tracking-[0.28em] sm:tracking-[0.4em] font-bold text-[#666666] mb-4">Brand by Fitra Report</p>
+                      <h3 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight leading-none break-words">{answers.brandName || "Untitled Brand"}</h3>
+                      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-gray-400">
                         <span>Agency Grade Strategic Output</span>
                         <span>{new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                       </div>
@@ -356,7 +383,7 @@ export default function Brand() {
                       <ReactMarkdown>{brandFoundation}</ReactMarkdown>
                     </div>
 
-                    <footer className="mt-32 pt-12 border-t border-gray-100 flex justify-between items-end">
+                    <footer className="mt-16 sm:mt-32 pt-8 sm:pt-12 border-t border-gray-100 flex justify-between items-end">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-gray-300">
                         Brand by Fitra<br/>
                         Strategic Identity System
@@ -371,7 +398,7 @@ export default function Brand() {
         </div>
 
         {/* STATUS BAR */}
-        <footer className="h-[60px] border-t border-[#E5E5E5] flex items-center px-12 justify-between bg-white shrink-0">
+        <footer className="h-[60px] border-t border-[#E5E5E5] flex items-center px-4 sm:px-8 lg:px-12 justify-between bg-white shrink-0">
           <div className="flex gap-4 items-center">
             <div className={cn("w-3 h-3 rounded-full animate-pulse", isGenerating ? "bg-[#666666]" : "bg-[#FF7A00]")}></div>
             <span className="text-[10px] uppercase tracking-widest font-bold">
@@ -387,11 +414,11 @@ export default function Brand() {
       <style>{`
         .artistic-content h3 {
           font-family: 'Playfair Display', serif;
-          font-size: 2.25rem;
+          font-size: clamp(1.75rem, 6vw, 2.25rem);
           font-style: italic;
           color: #1A1A1A;
-          margin-top: 4rem;
-          margin-bottom: 2rem;
+          margin-top: 3rem;
+          margin-bottom: 1.5rem;
           border-bottom: 1px solid #1A1A1A;
           padding-bottom: 0.5rem;
           display: inline-block;
@@ -401,20 +428,23 @@ export default function Brand() {
           line-height: 1.8;
           color: #333;
           margin-bottom: 1.5rem;
-          font-size: 1.1rem;
+          font-size: clamp(0.98rem, 3.8vw, 1.1rem);
         }
         .artistic-content ul {
           list-style: none;
           padding-left: 0;
-          margin-bottom: 2rem;
+          margin-bottom: 2.5rem;
         }
         .artistic-content li {
           font-family: 'Inter', sans-serif;
-          margin-bottom: 0.75rem;
-          display: flex;
-          align-items: flex-start;
-          gap: 1rem;
+          margin-bottom: 1.5rem;
+          display: block;
+          position: relative;
+          padding-left: 1.5rem;
           color: #444;
+        }
+        .artistic-content li p {
+          margin-bottom: 0.6rem;
         }
         .artistic-content li::before {
           content: "";
@@ -422,12 +452,72 @@ export default function Brand() {
           height: 8px;
           background-color: #FF7A00;
           border-radius: 9999px;
-          margin-top: 0.5rem;
-          flex-shrink: 0;
+          position: absolute;
+          top: 0.72rem;
+          left: 0;
+        }
+        .artistic-content li > strong:first-child {
+          display: block;
+          margin-bottom: 0.45rem;
+          line-height: 1.35;
+        }
+        .artistic-content li > ul {
+          margin-top: 0.8rem;
+          margin-bottom: 0.5rem;
+          padding-left: 0;
+        }
+        .artistic-content li > ul > li {
+          margin-bottom: 1rem;
+          padding-left: 1.2rem;
+        }
+        .artistic-content li > ul > li::before {
+          width: 6px;
+          height: 6px;
+          top: 0.65rem;
         }
         .artistic-content strong {
           color: #1A1A1A;
           font-weight: 700;
+        }
+        .pdf-exporting {
+          width: 920px;
+          color: rgb(26, 26, 26) !important;
+          background-color: rgb(255, 255, 255) !important;
+          border-color: rgb(238, 238, 238) !important;
+          box-shadow: none !important;
+        }
+        .pdf-exporting,
+        .pdf-exporting * {
+          color: rgb(26, 26, 26) !important;
+          border-color: rgb(229, 229, 229) !important;
+          box-shadow: none !important;
+          text-decoration-color: rgb(26, 26, 26) !important;
+          outline-color: rgb(26, 26, 26) !important;
+        }
+        .pdf-exporting p,
+        .pdf-exporting span,
+        .pdf-exporting li,
+        .pdf-exporting em {
+          color: rgb(64, 64, 64) !important;
+        }
+        .pdf-exporting strong,
+        .pdf-exporting h3 {
+          color: rgb(26, 26, 26) !important;
+        }
+        .pdf-exporting header {
+          border-bottom-color: rgb(255, 122, 0) !important;
+        }
+        .pdf-exporting footer {
+          border-top-color: rgb(229, 229, 229) !important;
+        }
+        .pdf-exporting .artistic-content h3 {
+          font-size: 2.1rem;
+          break-after: avoid;
+        }
+        .pdf-exporting .artistic-content p,
+        .pdf-exporting .artistic-content li {
+          font-size: 1rem;
+          break-inside: avoid;
         }
       `}</style>
     </div>
