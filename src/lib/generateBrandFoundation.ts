@@ -56,15 +56,6 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
     return generateStarterFoundation(answers);
   }
 
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: {
-      headers: {
-        "User-Agent": "brand-architect",
-      },
-    },
-  });
-
   const prompt = `
     You are a Brand Strategist.
     Based on the followings answers for a brand questionnaire, generate a structured brand foundation.
@@ -108,6 +99,10 @@ export async function generateBrandFoundation(answers: Record<string, string>) {
   `;
 
   try {
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
