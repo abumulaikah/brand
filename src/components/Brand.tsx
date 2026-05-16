@@ -132,7 +132,8 @@ export default function Brand() {
   const generateBrand = async () => {
     setIsGenerating(true);
     try {
-      const apiUrl = new URL("api/generate-brand", window.location.origin + import.meta.env.BASE_URL);
+      const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const apiUrl = `${basePath}/api/generate-brand`;
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
