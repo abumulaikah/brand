@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/brand-architect/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/brand-architect/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/brand-architect",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/brand-architect/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}
