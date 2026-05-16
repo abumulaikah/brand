@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useMemo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, ChevronLeft, Download, RefreshCw, Send, CheckCircle2, Building2, Users, Target, UserCircle, MessageSquare, Heart, Palette, ShieldAlert } from "lucide-react";
+import { ChevronRight, Download, RefreshCw, Building2, Users, UserCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -41,10 +41,11 @@ const SECTIONS: Section[] = [
     icon: Users,
     questions: [
       { key: "targetPain", label: "Siapa target utama & apa pain point mereka?", placeholder: "Contoh: Wanita karir sibuk yang kesulitan rileks di rumah", type: "textarea" },
+      { key: "economicStatus", label: "Status ekonomi atau daya beli customer seperti apa?", placeholder: "Contoh: Menengah atas, rela bayar lebih untuk kualitas dan pengalaman", type: "textarea" },
+      { key: "buyingMotivation", label: "Mereka membeli karena kebutuhan, aspirasi, atau lifestyle?", placeholder: "Contoh: Aspirasi untuk punya ritual self-care yang terasa premium", type: "textarea" },
       { key: "competitors", label: "Siapa kompetitor atau alternatif brand mereka?", placeholder: "Contoh: Jo Malone atau sekadar scrolling HP", type: "text" },
     ],
-  },
-  {
+  },  {
     id: "identity",
     title: "Identity & Personality",
     icon: UserCircle,
@@ -54,18 +55,32 @@ const SECTIONS: Section[] = [
       { key: "toneVoice", label: "Bagaimana tone bicaranya (Santai/Formal)?", placeholder: "Contoh: Lembut, puitis, dan inklusif", type: "text" },
     ],
   },
-  {
-    id: "visual_experience",
-    title: "Visual & Experience",
-    icon: Palette,
-    questions: [
-      { key: "visualStyle", label: "Gaya visual yang diinginkan (Minimalis/Modern/Klasik)?", placeholder: "Contoh: Minimalis Modern dengan warna Earth Tone", type: "text" },
-      { key: "customerFeel", label: "Apa perasaan customer setelah berinteraksi?", placeholder: "Contoh: Merasa divalidasi dan akhirnya bisa bernafas lega", type: "textarea" },
-    ],
-  },
 ];
+const SECTION_CONTEXT: Record<string, string> = {
+  foundation: "Kita sedang merapikan fondasi brand: nama, produk utama, masalah yang diselesaikan, dan pembeda awal. Jawaban di bagian ini akan menjadi bahan dasar untuk positioning dan arah identitas visual.",
+  audience: "Kita sedang memahami siapa customer yang paling tepat, daya belinya, motivasi belinya, dan alternatif yang mereka bandingkan. Bagian ini membantu menentukan seberapa premium, praktis, atau aspiratif brand perlu terasa.",
+  identity: "Kita sedang membentuk karakter, cara bicara, dan kalimat pengenal brand. Bagian ini akan membantu output terasa lebih siap dipakai sebagai starter point visual identity.",
+};
 
-export default function BrandArchitect() {
+const STRATEGY_NOTE_TEMPLATES: Record<string, string[]> = {
+  foundation: [
+    "Brand yang kuat dimulai dari kebenaran paling sederhana: siapa kamu, masalah apa yang kamu selesaikan, dan kenapa orang perlu peduli.",
+    "Jangan buru-buru masuk ke gaya visual. Pastikan dulu pembeda brand cukup jelas untuk diterjemahkan menjadi desain.",
+    "Nama dan produk boleh sederhana, tapi alasan brand ini layak diingat harus tajam.",
+  ],
+  audience: [
+    "Status ekonomi customer membantu menentukan bahasa visual: semakin aspiratif pembelinya, semakin penting rasa percaya, detail, dan konsistensi.",
+    "Motivasi beli menentukan arah desain. Kebutuhan perlu kejelasan; aspirasi perlu rasa naik kelas; lifestyle perlu karakter yang mudah dikenali.",
+    "Brand tidak harus berbicara ke semua orang. Semakin spesifik customernya, semakin mudah visual identity terasa tepat.",
+  ],
+  identity: [
+    "Personality brand adalah jembatan antara strategi dan visual. Dari sini warna, tipografi, layout, dan tone konten bisa mulai diarahkan.",
+    "Kalimat brand yang baik tidak harus panjang. Yang penting mudah diingat, terasa khas, dan sesuai dengan customer yang dituju.",
+    "Tone komunikasi akan menentukan apakah brand terasa ramah, premium, teknis, playful, atau serius.",
+  ],
+};
+
+export default function Brand() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -124,10 +139,16 @@ export default function BrandArchitect() {
         body: JSON.stringify({ answers }),
       });
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate brand foundation");
+      }
+
       setBrandFoundation(data.result);
     } catch (error) {
       console.error("Error generating brand:", error);
-      alert("Maaf, terjadi kesalahan saat mengolah data. Silakan coba lagi.");
+      const message = error instanceof Error ? error.message : "Maaf, terjadi kesalahan saat mengolah data. Silakan coba lagi.";
+      alert(message);
     } finally {
       setIsGenerating(false);
     }
@@ -154,13 +175,23 @@ export default function BrandArchitect() {
   };
 
   const progressPercentage = Math.round((completedQuestions / totalQuestions) * 100);
+  const strategyNoteIndexes = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(STRATEGY_NOTE_TEMPLATES).map(([sectionId, notes]) => [
+        sectionId,
+        Math.floor(Math.random() * notes.length),
+      ])
+    ) as Record<string, number>;
+  }, []);
+  const strategyNotes = STRATEGY_NOTE_TEMPLATES[currentSection.id] ?? STRATEGY_NOTE_TEMPLATES.foundation;
+  const strategyNote = strategyNotes[strategyNoteIndexes[currentSection.id] ?? 0];
 
   return (
     <div className="h-screen w-full bg-[#FAFAF9] text-[#1A1A1A] font-sans flex overflow-hidden border border-[#E5E5E5] selection:bg-[#E5E5E5] selection:text-[#1A1A1A]">
       {/* LEFT NAVIGATION RAIL */}
       <aside className="w-[80px] h-full border-r border-[#E5E5E5] flex flex-col items-center py-10 justify-between shrink-0">
         <div className="text-[10px] font-bold tracking-[0.2em] uppercase vertical-text transform rotate-180 flex items-center gap-2" style={{ writingMode: 'vertical-rl' }}>
-          Brand by Fitra <div className="w-1 h-3 bg-[#333333]" />
+          Brand by Fitra <div className="w-1 h-3 bg-[#FF7A00]" />
         </div>
         <div className="flex flex-col gap-6">
           {SECTIONS.map((_, i) => (
@@ -168,7 +199,7 @@ export default function BrandArchitect() {
               key={i}
               className={cn(
                 "w-2 h-2 rounded-full transition-all duration-300",
-                i === currentSectionIndex ? "bg-[#333333] scale-125" : i < currentSectionIndex ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"
+                i === currentSectionIndex ? "bg-[#FF7A00] scale-125" : i < currentSectionIndex ? "bg-[#1A1A1A]" : "bg-[#E5E5E5]"
               )}
             />
           ))}
@@ -186,8 +217,8 @@ export default function BrandArchitect() {
           <div className="flex gap-8 items-center">
             <span className="hidden md:block text-[11px] uppercase tracking-widest opacity-40">Project: {answers.brandName || "Untitled_Vision"}</span>
             <span className="text-[11px] uppercase tracking-widest font-bold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#333333] animate-pulse" />
-              brandbyfitra.vercel.app
+              <span className="w-2 h-2 rounded-full bg-[#FF7A00] animate-pulse" />
+              brand.alfitranoor.com
             </span>
           </div>
         </header>
@@ -205,7 +236,7 @@ export default function BrandArchitect() {
               >
                 <div className="mb-4 flex items-center gap-4">
                   <span className="text-[14px] font-serif italic text-[#666666]">Section {String(currentSectionIndex + 1).padStart(2, '0')}</span>
-                  <div className="h-[1px] w-12 bg-[#CFCFCF]"></div>
+                  <div className="h-[1px] w-12 bg-[#FF7A00]"></div>
                   <span className="text-[11px] font-bold uppercase tracking-widest">{currentSection.title}</span>
                 </div>
 
@@ -243,7 +274,7 @@ export default function BrandArchitect() {
                     <button
                       onClick={handleNext}
                       disabled={isGenerating}
-                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#333333] transition-colors flex items-center gap-2 group"
+                      className="px-8 py-3 bg-[#1A1A1A] text-white text-[11px] uppercase tracking-widest hover:bg-[#FF7A00] transition-colors flex items-center gap-2 group"
                     >
                       {isGenerating ? "Processing..." : (isLastQuestionInSection && isLastSection ? "Generate Foundation" : "Submit Response")}
                       {!isGenerating && <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
@@ -260,16 +291,15 @@ export default function BrandArchitect() {
 
                 <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-gray-100 pt-12">
                   <div>
-                    <p className="text-[10px] uppercase font-bold tracking-widest mb-2 opacity-50">Current Context</p>
+                    <p className="text-[10px] uppercase font-bold tracking-widest mb-2 opacity-50">Konteks Saat Ini</p>
                     <p className="text-[13px] leading-relaxed max-w-xs text-gray-600">
-                      We are currently defining the <span className="font-bold text-[#1A1A1A]">{currentSection.title}</span>. 
-                      Your answers here will shape a focused brand narrative with the same quiet clarity as Al Fitra Noor's digital home.
+                      {SECTION_CONTEXT[currentSection.id]}
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase font-bold tracking-widest mb-2 opacity-50">Strategy Note</p>
+                    <p className="text-[10px] uppercase font-bold tracking-widest mb-2 opacity-50">Catatan Strategi</p>
                     <p className="text-[13px] leading-relaxed max-w-xs text-gray-600 italic">
-                      "A strong brand is built on truth, not trends." Focus on clarity and recall over complexity at this stage.
+                      "{strategyNote}"
                     </p>
                   </div>
                 </div>
@@ -313,7 +343,7 @@ export default function BrandArchitect() {
                   </div>
                   
                   <div className="relative z-10 max-w-3xl mx-auto">
-                    <header className="mb-20 border-b-4 border-[#1A1A1A] pb-8">
+                    <header className="mb-20 border-b-4 border-[#FF7A00] pb-8">
                       <p className="text-[12px] uppercase tracking-[0.4em] font-bold text-[#666666] mb-4">Brand by Fitra Report</p>
                       <h3 className="text-6xl font-serif tracking-tighter leading-none">{answers.brandName}</h3>
                       <div className="mt-8 flex justify-between text-[10px] font-mono uppercase tracking-widest text-gray-400">
@@ -331,7 +361,7 @@ export default function BrandArchitect() {
                         Brand by Fitra<br/>
                         Strategic Identity System
                       </div>
-                      <div className="w-12 h-1 bg-[#333333]" />
+                      <div className="w-12 h-1 bg-[#FF7A00]" />
                     </footer>
                   </div>
                 </div>
@@ -343,7 +373,7 @@ export default function BrandArchitect() {
         {/* STATUS BAR */}
         <footer className="h-[60px] border-t border-[#E5E5E5] flex items-center px-12 justify-between bg-white shrink-0">
           <div className="flex gap-4 items-center">
-            <div className={cn("w-3 h-3 rounded-full animate-pulse", isGenerating ? "bg-[#666666]" : "bg-[#333333]")}></div>
+            <div className={cn("w-3 h-3 rounded-full animate-pulse", isGenerating ? "bg-[#666666]" : "bg-[#FF7A00]")}></div>
             <span className="text-[10px] uppercase tracking-widest font-bold">
               {isGenerating ? "Strategist is thinking..." : "Strategist is listening..."}
             </span>
@@ -353,74 +383,6 @@ export default function BrandArchitect() {
           </div>
         </footer>
       </main>
-
-      {/* RIGHT ANALYSIS PANEL */}
-      <aside className="hidden lg:flex w-[320px] h-full bg-[#1A1A1A] text-[#FAFAF9] p-10 flex-col shrink-0 overflow-y-auto">
-        <div className="mb-12">
-          <div className="text-[10px] uppercase tracking-[0.2em] mb-8 border-b border-gray-700 pb-2 flex justify-between items-center">
-            <span>Live Analysis</span>
-            <span className="text-[#D4D4D4] font-bold">READY</span>
-          </div>
-          
-          <div className="space-y-12">
-            <div>
-              <h3 className="text-[11px] uppercase font-bold mb-3 tracking-widest flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 0 ? "bg-[#D4D4D4]" : "bg-gray-700")} />
-                01. Core Value
-              </h3>
-              <div className="h-[1px] w-full bg-gray-800 mb-4"></div>
-              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.productProblem ? "text-gray-300 opacity-100" : "italic opacity-30")}>
-                {answers.productProblem ? `${answers.productProblem.substring(0, 80)}...` : "Awaiting Business Core data"}
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-[11px] uppercase font-bold mb-3 tracking-widest flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", currentSectionIndex >= 1 ? "bg-[#D4D4D4]" : "bg-gray-700")} />
-                02. Target Persona
-              </h3>
-              <div className="h-[1px] w-full bg-gray-800 mb-4"></div>
-              <p className={cn("text-[12px] leading-relaxed transition-opacity", answers.targetPain ? "text-gray-300 opacity-100" : "italic opacity-30")}>
-                {answers.targetPain ? `${answers.targetPain.substring(0, 80)}...` : "Waiting for audience definition"}
-              </p>
-            </div>
-
-            <div className="bg-[#1E1E1E] p-6 border border-gray-800 rounded-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <MessageSquare className="w-3 h-3 text-[#D4D4D4]" />
-                <h3 className="text-[11px] uppercase font-bold tracking-widest text-[#D4D4D4]">Fitra's Note</h3>
-              </div>
-              <p className="text-[14px] font-serif italic leading-relaxed text-gray-300">
-                {currentSectionIndex === 0 && "\"First impressions are binary. A brand either invites curiosity or breeds indifference.\""}
-                {currentSectionIndex === 1 && "\"To speak to everyone is to speak to no one. Be precise about who you are for.\""}
-                {currentSectionIndex >= 2 && "\"Strategy without aesthetics is invisible. Aesthetics without strategy is hollow.\""}
-              </p>
-            </div>
-
-            <div className="pt-12">
-              <div className="flex justify-between items-end mb-4">
-                <div className="text-[48px] font-serif leading-none tracking-tighter">{progressPercentage}%</div>
-                <div className="text-[10px] uppercase tracking-widest text-gray-500">Profile Density</div>
-              </div>
-              <div className="w-full h-1 bg-gray-800 overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercentage}%` }}
-                  className="h-full bg-[#D4D4D4]"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mt-auto">
-          <div className="text-[9px] uppercase tracking-widest leading-loose opacity-40">
-            Data Privacy Secured<br/>
-            Standard: Agency Professional<br/>
-            © 2026 Al Fitra Noor
-          </div>
-        </div>
-      </aside>
 
       <style>{`
         .artistic-content h3 {
@@ -458,7 +420,7 @@ export default function BrandArchitect() {
           content: "";
           width: 8px;
           height: 8px;
-          background-color: #333333;
+          background-color: #FF7A00;
           border-radius: 9999px;
           margin-top: 0.5rem;
           flex-shrink: 0;

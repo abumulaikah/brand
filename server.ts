@@ -25,7 +25,8 @@ async function startServer() {
       res.json({ result });
     } catch (error) {
       console.error("Gemini Error:", error);
-      res.status(500).json({ error: "Failed to generate brand foundation" });
+      const message = error instanceof Error ? error.message : "Failed to generate brand foundation";
+      res.status(500).json({ error: message });
     }
   });
 

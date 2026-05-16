@@ -18,6 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ result });
   } catch (error) {
     console.error("Gemini Error:", error);
-    return res.status(500).json({ error: "Failed to generate brand foundation" });
+    const message = error instanceof Error ? error.message : "Failed to generate brand foundation";
+    return res.status(500).json({ error: message });
   }
 }
